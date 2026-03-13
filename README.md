@@ -2,12 +2,24 @@
 
 SDK开发文档和软件操作手册更新至： https://xensedoc.readthedocs.io/en/latest/
 
+studio: https://www.xenserobotics.com/about/372
 ## 1. download
 ```
+cd ~
 git clone -b v1.4.7 https://github.com/ChangerC77/xensesdk.git
 ```
----
-## 2. conda
+## 2. hardware
+<img src='img/2.png' width="70%">
+<img src='img/3.png' width="70%">
+<img src='img/4.png' width="70%">
+<img src='img/5.png' width="70%">
+<img src='img/6.png' width="70%">
+<img src='img/7.png' width="70%">
+
+## 3. urdf
+you can see `STL` and `stp` file in `models` directory
+
+## 4. conda
 
 进入 Xense SDK 目录
 
@@ -20,18 +32,18 @@ conda create -n xenseenv python=3.9.19
 conda activate xenseenv
 ```
 ---
-## 3. 根据对应显卡安装显卡驱动
+## 5. 根据对应显卡安装显卡驱动
 ---
-## 4. cuda & cudnn
+## 6. cuda & cudnn
 SDK 支持 `CUDA Toolkit 11.8` 和 `cuDNN 8.9.2.26`。根据您的环境，选择以下安装方式：
 
-### 1. 通过 Conda 直接安装 (recommand)
-#### 1. 搜索所需版本：
+### 6.1. 通过 Conda 直接安装 (recommand)
+#### 6.1.1 搜索所需版本：
 ```
 conda search cudnn
 conda search cudatoolkit
 ```
-#### 2. 安装所需版本：
+#### 6.1.2 安装所需版本：
 ```
 conda install cudnn==8.9.2.26 cudatoolkit==11.8.0
 ```
@@ -89,72 +101,198 @@ Executing transaction: \ By downloading and using the CUDA Toolkit conda package
 
 done
 ```
-### 2. 从本地 Conda 环境包安装
+### 6.2 从本地 Conda 环境包安装
 ```
 conda install --use-local cudatoolkit-11.8.0-hd77b12b_0.conda
 conda install --use-local cudnn-8.9.2.26-cuda11_0.conda
 ```
 
-## 5. install Xense SDK Package
+## 7. install Xense SDK Package
 ```bash
 pip install xensesdk-1.4.7-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
 
 ---
-## 6. sensor config
+## 8. sensor config
 使用前见获得对应传感器配置文件，文件和传感器型号一一对应
 
-## 7. code
-### examples
-可以在以下目录中查找示例源代码：
-
-```
-cd ~/xensesdk/examples/
-```
-
-一个简单的例程如下:
-
-```python
-from xensesdk import Sensor
-from time import sleep
-
-def main():
-    # 1. 创建传感器
-
-    sensor = Sensor.create('OP000064')
-
-    # 2. 读取传感器数据
-    #   sensor.selectSensorInfo 可以通过传入 `Sensor.OutputType` 枚举量获取相应的传感器数据, 顺序或者数量无限制
-    #   可选的输出类型参考API说明
-    while True:
-        rectify_img, depth= sensor.selectSensorInfo(Sensor.OutputType.Rectify, Sensor.OutputType.Depth)
-
-        # 数据处理
-        # ...
-        sleep(0.02)
-
-if __name__ == '__main__':
-    main()
-```
-
 ---
-## 8. force 
+## 9. force 
 
 <img src='img/1.png'>
 
-## 9. API 文档
-
+## 10. API 文档
 本文件提供了用于处理传感器图像的各类方法，包含深度图生成、差异图计算、标记检测以及传感器数据的综合聚合。
+### 10.1 create_method
+```
+python ~/xensesdk/API/01_create_method.py
+```
+output
+```
+Found Xense devices: {'OG000165': 2}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_2 success!
+In SDK: [Network] Camera 2 connected
+Init infer engine
+infer session using GPU
+In SDK: [Network] Camera 2 disconnected
 
+```
+### 10.2 selectSensorInfo_method
+```
+python ~/xensesdk/API/02_selectSensorInfo_Method.py
+```
+output
+```
+Found Xense devices: {'OG000165': 2}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_2 success!
+In SDK: [Network] Camera 2 connected
+Init infer engine
+infer session using GPU
+Rectified image shape: (700, 400, 3)
+Difference image shape: (700, 400, 3)
+Depth image shape: (700, 400)
+3D force distribution shape: (35, 20, 3)
+Normal force component: (35, 20, 3)
+6-dimensional resultant force: (6,)
+Tangential displacement shape: (26, 14, 2)
+Current frame 3D mesh shape: (35, 20, 3)
+Initial 3D mesh shape: (35, 20, 3)
+Mesh deformation vector: (35, 20, 3)
+Sensor timestamp: 1773420554.5228953
+In SDK: [Network] Camera 2 disconnected
+```
+### 10.3 createSolver
+```
+python ~/xensesdk/API/03_createSolver.py
+```
+output
+```
+Found Xense devices: {'OG000165': 2}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_2 success!
+In SDK: [Network] Camera 2 connected
+Init infer engine
+infer session using GPU
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_000.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_001.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_002.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_003.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_004.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_005.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_006.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_007.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_008.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_009.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_010.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_011.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_012.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_013.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_014.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_015.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_016.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_017.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_018.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_019.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_020.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_021.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_022.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_023.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_024.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_025.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_026.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_027.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_028.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_029.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_030.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_031.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_032.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_033.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_034.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_035.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_036.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_037.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_038.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_039.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_040.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_041.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_042.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_043.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_044.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_045.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_046.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_047.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_048.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_049.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_050.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_051.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_052.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_053.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_054.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_055.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_056.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_057.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_058.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_059.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_060.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_061.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_062.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_063.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_064.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_065.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_066.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_067.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_068.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_069.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_070.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_071.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_072.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_073.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_074.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_075.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_076.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_077.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_078.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_079.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_080.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_081.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_082.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_083.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_084.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_085.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_086.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_087.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_088.png
+Saved /home/leishen/xensesdk/API/test_dir/OG000165_089.png
+模型已并保存到: /home/leishen/xensesdk/API/test_dir/runtime_OG000165
+In SDK: [Network] Camera 2 disconnected
+Init infer engine
+infer session using GPU
+Data saved and replayed successfully.
+```
+### 10.4 real-time show image
+```
+python ~/xensesdk/API/04_show.py
+```
 ---
+### 10.5 API instruction
+#### 10.5.1 `create` 方法
 
-### 1. `create` 方法
-
-#### 描述
+##### 描述
 
 创建一个传感器实例，在结束时请调用`release`。
 
-#### 输入参数
+##### 输入参数
 
 * **cam\_id** (`int | str`, 可选): 传感器 ID、序列号或视频路径。默认为 0。
 * **use\_gpu** (`bool`, 可选): 是否使用 GPU 推理，默认为 True。
@@ -165,11 +303,11 @@ if __name__ == '__main__':
 * **ip\_address** (`str`, 可选): 远程连接使用的相机 IP。
 * **video\_path** (`str`, 可选): 离线模拟的视频路径。
 
-#### 返回
+##### 返回
 
 * `Sensor` 对象
 
-#### 示例
+##### 示例
 
 ```python
 
@@ -189,13 +327,13 @@ sensor =  Sensor.create('OP000064', ip_address="192.168.66.66")
 
 ---
 
-### 2. `selectSensorInfo` 方法
+#### 10.5.2 `selectSensorInfo` 方法
 
-#### 描述
+##### 描述
 
 获取指定类型的传感器数据。
 
-#### 输入参数
+##### 输入参数
 
 * **args**: 任意数量的 `Sensor.OutputType` 枚举，用于指定需要获取的数据类型：
 
@@ -212,11 +350,11 @@ sensor =  Sensor.create('OP000064', ip_address="192.168.66.66")
     * Mesh3DInit: Optional[np.ndarray]       # 初始3D网格, shape=(35, 20, 3)
     * Mesh3DFlow: Optional[np.ndarray]       # 网格形变向量, shape=(35, 20, 3)
 
-#### 返回
+##### 返回
 
 * 所请求的传感器数据（返回数量和顺序与参数一致）
 
-#### 示例
+##### 示例
 
 ```python
 from xensesdk import Sensor
@@ -234,22 +372,22 @@ sensor.release()
 
 ---
 
-### 3. `startSaveSensorInfo` 方法
+#### 10.5.3 `startSaveSensorInfo` 方法
 
-#### 描述
+##### 描述
 
 开始保存指定类型的传感器数据，在结束时务必搭配`stopSaveSensorInfo`使用。
 
-#### 输入参数
+##### 输入参数
 
 * **path** (`str`): 数据保存的文件夹路径。
 * **data\_to\_save** (`List[Sensor.OutputType]`, 可选): 需要保存的数据类型列表。为 `None` 则保存所有类型。
 
-#### 返回
+##### 返回
 
 * 无
 
-#### 示例
+##### 示例
 
 ```python
 from xensesdk import Sensor
@@ -269,33 +407,33 @@ sensor.release()
 
 ---
 
-### 4. `stopSaveSensorInfo` 方法
+#### 10.5.4 `stopSaveSensorInfo` 方法
 
-#### 描述
+##### 描述
 
 停止数据保存。
 
 ---
 
-### 5. `getCameraID` 方法
+#### 10.5.5 `getCameraID` 方法
 
-#### 描述
+##### 描述
 
 获取当前传感器的相机编号。
 
 ---
 
-### 6. `resetReferenceImage` 方法
+#### 10.5.6 `resetReferenceImage` 方法
 
-#### 描述
+##### 描述
 
 重置数据处理流程。
 
 ---
 
-### 7. `release` 方法
+#### 10.5.7 `release` 方法
 
-#### 描述
+##### 描述
 
 释放资源，关闭传感器。
 
