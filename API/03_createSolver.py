@@ -7,8 +7,9 @@ import time
 import numpy as np
 
 from xensesdk import Sensor
+from config_loader import load_sensor_id
 
-sensor_id = 'OG000165'
+sensor_id = load_sensor_id()
 
 def save_data():
     fps = 30       # Hz

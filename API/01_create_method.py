@@ -12,10 +12,14 @@ Example 4: Connect to Sensor on Remote Computing Board
 """
 
 from xensesdk import Sensor
+from config_loader import load_sensor_id
+
+
+sensor_id = load_sensor_id()
 
 # Example 1: Start Sensor via Serial Number (SN)
-# Create an instance using the sensor serial number (SN)
-sensor = Sensor.create('OG000165')
+# Create an instance using the sensor serial number (SN) from config/config.yaml
+sensor = Sensor.create(sensor_id)
 
 # Create an instance using the camera ID (e.g., 0, 1)
 # Example 2: Start Sensor via Camera ID

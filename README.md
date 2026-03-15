@@ -284,6 +284,30 @@ Data saved and replayed successfully.
 ```
 python ~/xensesdk/API/04_show.py
 ```
+output
+```
+Found Xense devices: {'OG000165': 1}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_1 success!
+In SDK: [Network] Camera 1 connected
+Init infer engine
+infer session using GPU
+模型已并保存到: /home/leishen/cxy/xensesdk/API/test_dir/runtime_OG000165
+Init infer engine
+infer session using GPU
+在终端按 Ctrl+C 退出实时显示
+```
+Rectify
+
+<img src='img/8.png'>
+
+depth
+
+<img src='img/9.png'>
+
 ---
 ### 10.5 API instruction
 #### 10.5.1 `create` 方法

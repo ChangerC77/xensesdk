@@ -1,7 +1,11 @@
 from xensesdk import Sensor
+from config_loader import load_sensor_id
+
+
+sensor_id = load_sensor_id()
 
 # Create sensor instance
-sensor = Sensor.create('OG000165')
+sensor = Sensor.create(sensor_id)
 
 # Retrieve specified types of sensor data
 rectify, difference, depth, force, force_norm, force_resultant, marker2d, mesh3d, mesh3dinit, mesh3dflow, timestamp = sensor.selectSensorInfo(
