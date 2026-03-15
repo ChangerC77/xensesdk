@@ -1,13 +1,20 @@
 from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SCRIPT_DIR.parent
 SAVE_DIR = Path(SCRIPT_DIR / "test_dir")  # Storage directory
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
 import cv2
+import sys
 import time
 import numpy as np
 
 from xensesdk import Sensor
-from config_loader import load_sensor_id
+
+
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from config.config_loader import load_sensor_id
 
 sensor_id = load_sensor_id()
 

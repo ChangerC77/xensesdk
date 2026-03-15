@@ -1,12 +1,20 @@
+from pathlib import Path
 import sys
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from config.config_loader import load_path
 from xensesdk import ExampleView
 from xensesdk import Sensor
 
 
 def main():
+    video_path = load_path("examples.data_processing_video_path")
     sensor_0 = Sensor.create(
         None,
-        video_path=r"D:\gitlab\xensesdk\xensesdk\examples\data3\sensor_0_stamped_data_2025_06_05_15_18_06.h5"
+        video_path=str(video_path)
     )
     View = ExampleView(sensor_0)
     View2d = View.create2d(Sensor.OutputType.Difference, Sensor.OutputType.Depth, Sensor.OutputType.Marker2D)

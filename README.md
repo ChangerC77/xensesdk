@@ -121,9 +121,26 @@ pip install xensesdk-1.4.7-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.
 
 <img src='img/1.png'>
 
-## 10. API 文档
+## 10. config
+
+根据具体传感器参数来修改`config/config.yaml`文件
+
+```
+xense:
+  sensor_id: 'OG000165'
+
+examples:
+  data_processing_video_path: ''
+  finger_config_path: ''
+  record_data_dir: 'Examples/output'
+  record_data_duration_seconds: 5
+  remote_ip: '192.168.1.120'
+
+```
+
+## 11. API 文档
 本文件提供了用于处理传感器图像的各类方法，包含深度图生成、差异图计算、标记检测以及传感器数据的综合聚合。
-### 10.1 create_method
+### 11.1 create_method
 ```
 python ~/xensesdk/API/01_create_method.py
 ```
@@ -141,7 +158,7 @@ infer session using GPU
 In SDK: [Network] Camera 2 disconnected
 
 ```
-### 10.2 selectSensorInfo_method
+### 11.2 selectSensorInfo_method
 ```
 python ~/xensesdk/API/02_selectSensorInfo_Method.py
 ```
@@ -169,7 +186,7 @@ Mesh deformation vector: (35, 20, 3)
 Sensor timestamp: 1773420554.5228953
 In SDK: [Network] Camera 2 disconnected
 ```
-### 10.3 createSolver
+### 11.3 createSolver
 ```
 python ~/xensesdk/API/03_createSolver.py
 ```
@@ -280,7 +297,7 @@ Init infer engine
 infer session using GPU
 Data saved and replayed successfully.
 ```
-### 10.4 real-time show image
+### 11.4 real-time show image
 ```
 python ~/xensesdk/API/04_show.py
 ```
@@ -309,8 +326,83 @@ depth
 <img src='img/9.png'>
 
 ---
-### 10.5 API instruction
-#### 10.5.1 `create` 方法
+## 12. Example
+### 12.1 example_force.py
+```
+python ~/xensesdk/Examples/example_force.py
+```
+output
+```
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
+```
+<img src='img/11.png'>
+
+### 12.2 example_marker_detect.py
+```
+python ~/xensesdk/Examples/example_marker_detect.py
+```
+output
+```
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
+```
+<img src='img/12.png'>
+
+### 12.3 example_finger_depth.py
+```
+python ~/xensesdk/Examples/example_finger_depth.py
+```
+output
+```
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
+```
+
+<img src='img/10.png'>
+
+### 12.4 example_depth.py
+```
+python ~/xensesdk/Examples/example_depth.py
+```
+<img src='img/13.png'>
+
+output
+```
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
+```
+
+### 13 API instruction
+#### 13.1 `create` 方法
 
 ##### 描述
 
@@ -351,7 +443,7 @@ sensor =  Sensor.create('OP000064', ip_address="192.168.66.66")
 
 ---
 
-#### 10.5.2 `selectSensorInfo` 方法
+#### 13.2 `selectSensorInfo` 方法
 
 ##### 描述
 
@@ -396,7 +488,7 @@ sensor.release()
 
 ---
 
-#### 10.5.3 `startSaveSensorInfo` 方法
+#### 13.3 `startSaveSensorInfo` 方法
 
 ##### 描述
 
@@ -431,7 +523,7 @@ sensor.release()
 
 ---
 
-#### 10.5.4 `stopSaveSensorInfo` 方法
+#### 13.4 `stopSaveSensorInfo` 方法
 
 ##### 描述
 
@@ -439,7 +531,7 @@ sensor.release()
 
 ---
 
-#### 10.5.5 `getCameraID` 方法
+#### 13.5 `getCameraID` 方法
 
 ##### 描述
 
@@ -447,7 +539,7 @@ sensor.release()
 
 ---
 
-#### 10.5.6 `resetReferenceImage` 方法
+#### 13.6 `resetReferenceImage` 方法
 
 ##### 描述
 
@@ -455,7 +547,7 @@ sensor.release()
 
 ---
 
-#### 10.5.7 `release` 方法
+#### 13.7 `release` 方法
 
 ##### 描述
 

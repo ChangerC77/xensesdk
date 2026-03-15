@@ -11,14 +11,23 @@ Example 4: Connect to Sensor on Remote Computing Board
 
 """
 
+from pathlib import Path
+import sys
+
 from xensesdk import Sensor
-from config_loader import load_sensor_id
+
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from config.config_loader import load_sensor_id
 
 
 sensor_id = load_sensor_id()
 
 # Example 1: Start Sensor via Serial Number (SN)
-# Create an instance using the sensor serial number (SN) from config/config.yaml
+# Create an instance using the sensor serial number (SN) from /config/config.yaml
 sensor = Sensor.create(sensor_id)
 
 # Create an instance using the camera ID (e.g., 0, 1)

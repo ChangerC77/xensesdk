@@ -1,5 +1,14 @@
+from pathlib import Path
+import sys
+
 from xensesdk import Sensor
-from config_loader import load_sensor_id
+
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from config.config_loader import load_sensor_id
 
 
 sensor_id = load_sensor_id()

@@ -1,0 +1,9 @@
+xense:
+  sensor_id: 'OG000165'
+
+examples:
+  data_processing_video_path: ''
+  finger_config_path: ''
+  record_data_dir: 'Examples/output'
+  record_data_duration_seconds: 5
+  remote_ip: '192.168.1.120'
