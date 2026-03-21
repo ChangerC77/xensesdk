@@ -4,7 +4,11 @@ import sys
 from xensesdk import Sensor
 
 
-ROOT_DIR = Path(__file__).resolve().parents[1]
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = next(
+    parent for parent in (SCRIPT_DIR, *SCRIPT_DIR.parents)
+    if (parent / "config" / "config_loader.py").exists()
+)
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 

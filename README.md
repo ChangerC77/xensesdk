@@ -9,12 +9,21 @@ cd ~
 git clone -b v1.4.7 https://github.com/ChangerC77/xensesdk.git
 ```
 ## 2. hardware
-<img src='img/2.png' width="70%">
-<img src='img/3.png' width="70%">
-<img src='img/4.png' width="70%">
-<img src='img/5.png' width="70%">
-<img src='img/6.png' width="70%">
-<img src='img/7.png' width="70%">
+
+<table>
+  <tr>
+    <td><img src='img/2.png' width="100%"></td>
+    <td><img src='img/3.png' width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src='img/4.png' width="100%"></td>
+    <td><img src='img/5.png' width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src='img/6.png' width="100%"></td>
+    <td><img src='img/7.png' width="100%"></td>
+  </tr>
+</table>
 
 ## 3. urdf
 you can see `STL` and `stp` file in `models` directory
@@ -48,6 +57,9 @@ conda search cudatoolkit
 conda install cudnn==8.9.2.26 cudatoolkit==11.8.0
 ```
 耗时比较长
+<details>
+<summary>output</summary>
+
 ```
 Channels:
  - defaults
@@ -101,6 +113,9 @@ Executing transaction: \ By downloading and using the CUDA Toolkit conda package
 
 done
 ```
+
+</details>
+
 ### 6.2 从本地 Conda 环境包安装
 ```
 conda install --use-local cudatoolkit-11.8.0-hd77b12b_0.conda
@@ -113,21 +128,21 @@ pip install xensesdk-1.4.7-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.
 ```
 
 ---
-## 8. sensor config
-使用前见获得对应传感器配置文件，文件和传感器型号一一对应
-
----
-## 9. force 
+## 8. force 
 
 <img src='img/1.png'>
 
-## 10. config
+## 9. config
+
+使用前请先获得对应传感器配置文件，文件和传感器型号一一对应。
 
 根据具体传感器参数来修改`config/config.yaml`文件
 
 ```
 xense:
-  sensor_id: 'OG000165'
+  sensor1_id: 'OG000165'
+  sensor2_id: 'OG000204'
+  freq: 60
 
 examples:
   data_processing_video_path: ''
@@ -138,37 +153,49 @@ examples:
 
 ```
 
-## 11. API 文档
-本文件提供了用于处理传感器图像的各类方法，包含深度图生成、差异图计算、标记检测以及传感器数据的综合聚合。
-### 11.1 create_method
+说明：
+
+- 单传感器脚本兼容读取 `xense.sensor_id`，未配置时会回退到 `xense.sensor1_id`。
+- 双传感器脚本默认读取 `xense.sensor1_id` 和 `xense.sensor2_id`，也兼容 `xense.sensor_ids` 列表写法。
+- `xense.freq` 用于控制实时读取、实时显示和保存数据时的循环频率。
+
+## 10. API 文档
+本目录已按单传感器和双传感器拆分：
+
+- `API/single`：单传感器相关示例
+- `API/double`：双传感器相关示例
+
+这些脚本默认从 `config/config.yaml` 读取传感器 ID；实时读取、实时显示和保存数据的频率由 `xense.freq` 控制。双传感器脚本也支持通过命令行直接传入两个传感器 ID。
+
+### 10.1 single create_method
+```bash
+python ~/xensesdk/API/single/01_create_method.py
 ```
-python ~/xensesdk/API/01_create_method.py
-```
-output
-```
+
+<details>
+<summary>output</summary>
+
+```text
 Found Xense devices: {'OG000165': 2}
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
 Read config from OG000165: cam_id_2 success!
 In SDK: [Network] Camera 2 connected
 Init infer engine
 infer session using GPU
 In SDK: [Network] Camera 2 disconnected
+```
 
+</details>
+
+### 10.2 single selectSensorInfo_method
+```bash
+python ~/xensesdk/API/single/02_selectSensorInfo_Method.py
 ```
-### 11.2 selectSensorInfo_method
-```
-python ~/xensesdk/API/02_selectSensorInfo_Method.py
-```
-output
-```
+
+<details>
+<summary>output</summary>
+
+```text
 Found Xense devices: {'OG000165': 2}
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
 Read config from OG000165: cam_id_2 success!
 In SDK: [Network] Camera 2 connected
 Init infer engine
@@ -186,152 +213,141 @@ Mesh deformation vector: (35, 20, 3)
 Sensor timestamp: 1773420554.5228953
 In SDK: [Network] Camera 2 disconnected
 ```
-### 11.3 createSolver
+
+</details>
+
+### 10.3 single createSolver
+```bash
+python ~/xensesdk/API/single/03_createSolver.py
 ```
-python ~/xensesdk/API/03_createSolver.py
-```
-output
-```
+
+说明：
+
+- 图像会保存到 `API/single/test_dir`。
+- 保存频率读取 `config/config.yaml` 中的 `xense.freq`。
+
+<details>
+<summary>output</summary>
+
+```text
 Found Xense devices: {'OG000165': 2}
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
 Read config from OG000165: cam_id_2 success!
 In SDK: [Network] Camera 2 connected
 Init infer engine
 infer session using GPU
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_000.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_001.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_002.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_003.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_004.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_005.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_006.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_007.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_008.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_009.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_010.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_011.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_012.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_013.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_014.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_015.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_016.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_017.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_018.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_019.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_020.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_021.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_022.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_023.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_024.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_025.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_026.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_027.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_028.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_029.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_030.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_031.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_032.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_033.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_034.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_035.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_036.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_037.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_038.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_039.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_040.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_041.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_042.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_043.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_044.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_045.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_046.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_047.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_048.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_049.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_050.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_051.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_052.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_053.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_054.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_055.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_056.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_057.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_058.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_059.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_060.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_061.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_062.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_063.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_064.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_065.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_066.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_067.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_068.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_069.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_070.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_071.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_072.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_073.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_074.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_075.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_076.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_077.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_078.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_079.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_080.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_081.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_082.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_083.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_084.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_085.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_086.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_087.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_088.png
-Saved /home/leishen/xensesdk/API/test_dir/OG000165_089.png
-模型已并保存到: /home/leishen/xensesdk/API/test_dir/runtime_OG000165
+Saved /home/leishen/xensesdk/API/single/test_dir/OG000165_000.png
+...
+模型已并保存到: /home/leishen/xensesdk/API/single/test_dir/runtime_OG000165
 In SDK: [Network] Camera 2 disconnected
 Init infer engine
 infer session using GPU
 Data saved and replayed successfully.
 ```
-### 11.4 real-time show image
+
+</details>
+
+### 10.4 single real-time show image
+```bash
+python ~/xensesdk/API/single/04_show.py
 ```
-python ~/xensesdk/API/04_show.py
-```
-output
-```
+
+说明：
+
+- 运行频率读取 `config/config.yaml` 中的 `xense.freq`。
+- 运行时配置保存在 `API/single/test_dir`。
+
+<details>
+<summary>output</summary>
+
+```text
 Found Xense devices: {'OG000165': 1}
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
-new flash read fail, fallback.
 Read config from OG000165: cam_id_1 success!
 In SDK: [Network] Camera 1 connected
 Init infer engine
 infer session using GPU
-模型已并保存到: /home/leishen/cxy/xensesdk/API/test_dir/runtime_OG000165
+模型已并保存到: /home/leishen/cxy/xensesdk/API/single/test_dir/runtime_OG000165
 Init infer engine
 infer session using GPU
 在终端按 Ctrl+C 退出实时显示
 ```
-Rectify
 
-<img src='img/8.png'>
+</details>
 
-depth
+| Rectify | Depth |
+| --- | --- |
+| <img src='img/8.png' width="100%"> | <img src='img/9.png' width="100%"> |
 
-<img src='img/9.png'>
+### 10.5 double sensors
+```bash
+python ~/xensesdk/API/double/05_double_sensors.py
+```
+
+也可以直接传入两个传感器 ID：
+
+```bash
+python ~/xensesdk/API/double/05_double_sensors.py OG000165 OG000204
+```
+
+<details>
+<summary>output</summary>
+
+```text
+===== Sensor OG000165 =====
+[OG000165] Rectified image shape: (700, 400, 3)
+[OG000165] Difference image shape: (700, 400, 3)
+[OG000165] Depth image shape: (700, 400)
+...
+
+===== Sensor OG000204 =====
+[OG000204] Rectified image shape: (700, 400, 3)
+[OG000204] Difference image shape: (700, 400, 3)
+[OG000204] Depth image shape: (700, 400)
+...
+```
+
+</details>
+
+### 10.6 double sensors real-time
+```bash
+python ~/xensesdk/API/double/05_double_sensors_real_time.py
+```
+
+也可以直接传入两个传感器 ID，并用 `--fps` 临时覆盖 `config/config.yaml` 里的 `xense.freq`：
+
+```bash
+python ~/xensesdk/API/double/05_double_sensors_real_time.py OG000165 OG000204 --fps 30
+```
+
+<details>
+<summary>output</summary>
+
+```text
+First frame data shapes:
+
+===== Sensor OG000165 =====
+[OG000165] Rectified image shape: (700, 400, 3)
+...
+
+===== Sensor OG000204 =====
+[OG000204] Rectified image shape: (700, 400, 3)
+...
+
+Frame 2 | loop_time=0.0123s | loop_fps=58.41 Hz
+[OG000165] timestamp=1770810092.601942, sensor_fps=59.87 Hz, depth_shape=(700, 400), force_resultant=[...]
+[OG000204] timestamp=1770810092.602115, sensor_fps=60.02 Hz, depth_shape=(700, 400), force_resultant=[...]
+```
+
+</details>
 
 ---
-## 12. Example
-### 12.1 example_force.py
+## 11. Example
+### 11.1 example_force.py
 ```
 python ~/xensesdk/Examples/example_force.py
 ```
-output
+<details>
+<summary>output</summary>
+
 ```
 Found Xense devices: {'OG000165': 0}
 new flash read fail, fallback.
@@ -343,13 +359,17 @@ In SDK: [Network] Camera 0 connected
 Init infer engine
 infer session using GPU
 ```
+
+</details>
 <img src='img/11.png'>
 
-### 12.2 example_marker_detect.py
+### 11.2 example_marker_detect.py
 ```
 python ~/xensesdk/Examples/example_marker_detect.py
 ```
-output
+<details>
+<summary>output</summary>
+
 ```
 Found Xense devices: {'OG000165': 0}
 new flash read fail, fallback.
@@ -361,13 +381,17 @@ In SDK: [Network] Camera 0 connected
 Init infer engine
 infer session using GPU
 ```
+
+</details>
 <img src='img/12.png'>
 
-### 12.3 example_finger_depth.py
+### 11.3 example_finger_depth.py
 ```
 python ~/xensesdk/Examples/example_finger_depth.py
 ```
-output
+<details>
+<summary>output</summary>
+
 ```
 Found Xense devices: {'OG000165': 0}
 new flash read fail, fallback.
@@ -380,15 +404,19 @@ Init infer engine
 infer session using GPU
 ```
 
+</details>
+
 <img src='img/10.png'>
 
-### 12.4 example_depth.py
+### 11.4 example_depth.py
 ```
 python ~/xensesdk/Examples/example_depth.py
 ```
 <img src='img/13.png'>
 
-output
+<details>
+<summary>output</summary>
+
 ```
 Found Xense devices: {'OG000165': 0}
 new flash read fail, fallback.
@@ -401,8 +429,10 @@ Init infer engine
 infer session using GPU
 ```
 
-### 13 API instruction
-#### 13.1 `create` 方法
+</details>
+
+## 12. API instruction
+### 12.1 `create` 方法
 
 ##### 描述
 
@@ -443,7 +473,7 @@ sensor =  Sensor.create('OP000064', ip_address="192.168.66.66")
 
 ---
 
-#### 13.2 `selectSensorInfo` 方法
+### 12.2 `selectSensorInfo` 方法
 
 ##### 描述
 
@@ -488,7 +518,7 @@ sensor.release()
 
 ---
 
-#### 13.3 `startSaveSensorInfo` 方法
+### 12.3 `startSaveSensorInfo` 方法
 
 ##### 描述
 
@@ -523,7 +553,7 @@ sensor.release()
 
 ---
 
-#### 13.4 `stopSaveSensorInfo` 方法
+### 12.4 `stopSaveSensorInfo` 方法
 
 ##### 描述
 
@@ -531,7 +561,7 @@ sensor.release()
 
 ---
 
-#### 13.5 `getCameraID` 方法
+### 12.5 `getCameraID` 方法
 
 ##### 描述
 
@@ -539,7 +569,7 @@ sensor.release()
 
 ---
 
-#### 13.6 `resetReferenceImage` 方法
+### 12.6 `resetReferenceImage` 方法
 
 ##### 描述
 
@@ -547,7 +577,7 @@ sensor.release()
 
 ---
 
-#### 13.7 `release` 方法
+### 12.7 `release` 方法
 
 ##### 描述
 

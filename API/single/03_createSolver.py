@@ -1,7 +1,10 @@
 from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = SCRIPT_DIR.parent
-SAVE_DIR = Path(SCRIPT_DIR / "test_dir")  # Storage directory
+ROOT_DIR = next(
+    parent for parent in (SCRIPT_DIR, *SCRIPT_DIR.parents)
+    if (parent / "config" / "config_loader.py").exists()
+)
+SAVE_DIR = SCRIPT_DIR / "test_dir"  # Storage directory
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
 import cv2
 import sys
@@ -14,15 +17,17 @@ from xensesdk import Sensor
 if str(ROOT_DIR) not in sys.path:
     sys.path.insert(0, str(ROOT_DIR))
 
-from config.config_loader import load_sensor_id
+from config.config_loader import load_float, load_sensor_id
 
 sensor_id = load_sensor_id()
 
 def save_data():
-    fps = 30       # Hz
+    fps = load_float("xense.freq", default=30.0)  # Hz
     duration = 3   # seconds
+    if fps <= 0:
+        raise ValueError("config/config.yaml 中的 xense.freq 必须大于 0")
     frame_interval = 1.0 / fps
-    total_frames = fps * duration
+    total_frames = max(1, int(round(fps * duration)))
 
     sensor_0 = Sensor.create(sensor_id)
     for i in range(total_frames):
@@ -38,7 +43,7 @@ def save_data():
         cv2.imwrite(str(filename), rec)
         print(f"Saved {filename}")
 
-        # Control frame rate (30Hz)
+        # Control frame rate
         elapsed = time.time() - start_time
         sleep_time = frame_interval - elapsed
         if sleep_time > 0:

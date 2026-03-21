@@ -27,11 +27,42 @@ def get_config_value(path, default=_MISSING):
 
 def load_sensor_id():
     sensor_id = get_config_value("xense.sensor_id", default=None)
-    if not sensor_id:
-        sensor_id = get_config_value("xense.sensor1_id", default=None)
-    if not sensor_id:
-        raise ValueError(f"{CONFIG_PATH} 中的 xense.sensor_id 不能为空")
-    return str(sensor_id)
+    if sensor_id not in (None, ""):
+        return str(sensor_id)
+    return load_sensor_ids(required_count=1)[0]
+
+
+def load_sensor_ids(required_count=None):
+    sensor_ids = get_config_value("xense.sensor_ids", default=None)
+    if sensor_ids not in (None, ""):
+        if not isinstance(sensor_ids, (list, tuple)):
+            raise TypeError(f"{CONFIG_PATH} 中的 xense.sensor_ids 必须是列表")
+        sensor_ids = [str(sensor_id) for sensor_id in sensor_ids if sensor_id not in (None, "")]
+    else:
+        sensor_ids = []
+        for index in range(1, 9):
+            sensor_id = get_config_value(f"xense.sensor{index}_id", default=None)
+            if sensor_id not in (None, ""):
+                sensor_ids.append(str(sensor_id))
+
+        if not sensor_ids:
+            sensor_id = get_config_value("xense.sensor_id", default=None)
+            if sensor_id not in (None, ""):
+                sensor_ids.append(str(sensor_id))
+
+    if required_count is not None and len(sensor_ids) < required_count:
+        raise ValueError(
+            f"{CONFIG_PATH} 中至少需要配置 {required_count} 个传感器 ID，可使用 "
+            "xense.sensor_ids 或 xense.sensor1_id/xense.sensor2_id"
+        )
+
+    if not sensor_ids:
+        raise ValueError(
+            f"{CONFIG_PATH} 中的 xense.sensor_id、xense.sensor_ids 或 "
+            "xense.sensor1_id/xense.sensor2_id 不能为空"
+        )
+
+    return sensor_ids[:required_count] if required_count is not None else sensor_ids
 
 
 def load_string(path, default=_MISSING):

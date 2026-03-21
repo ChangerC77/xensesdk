@@ -1,5 +1,7 @@
 xense:
-  sensor_id: 'OG000165'
+  sensor1_id: 'OG000165'
+  sensor2_id: 'OG000204'
+  freq: 60
 
 examples:
   data_processing_video_path: ''
