@@ -3,11 +3,51 @@
 SDK开发文档和软件操作手册更新至： https://xensedoc.readthedocs.io/en/latest/
 
 studio: https://www.xenserobotics.com/about/372
+
+<!-- OUTLINE START -->
+## Outline
+
+- [1. download](#download)
+- [2. hardware](#hardware)
+- [3. urdf](#urdf)
+- [4. conda](#conda)
+- [5. 根据对应显卡安装显卡驱动](#gpu-driver)
+- [6. cuda & cudnn](#cuda-cudnn)
+  - [6.1 通过 Conda 直接安装](#cuda-cudnn-conda)
+  - [6.2 从本地 Conda 环境包安装](#cuda-cudnn-local)
+- [7. install Xense SDK Package](#install-sdk)
+- [8. force](#force)
+- [9. config](#config)
+- [10. API 文档](#api-docs)
+  - [10.1 single create_method](#api-docs-single-create)
+  - [10.2 single selectSensorInfo_method](#api-docs-single-select)
+  - [10.3 single createSolver](#api-docs-single-solver)
+  - [10.4 single real-time show image](#api-docs-single-show)
+  - [10.5 double sensors](#api-docs-double)
+  - [10.6 double sensors real-time](#api-docs-double-realtime)
+- [11. Example](#examples)
+  - [11.1 example_force.py](#example-force)
+  - [11.2 example_marker_detect.py](#example-marker-detect)
+  - [11.3 example_finger_depth.py](#example-finger-depth)
+  - [11.4 example_depth.py](#example-depth)
+- [12. API instruction](#api-instruction)
+  - [12.1 create 方法](#api-create)
+  - [12.2 selectSensorInfo 方法](#api-selectsensorinfo)
+  - [12.3 startSaveSensorInfo 方法](#api-startsavesensorinfo)
+  - [12.4 stopSaveSensorInfo 方法](#api-stopsavesensorinfo)
+  - [12.5 getCameraID 方法](#api-getcameraid)
+  - [12.6 resetReferenceImage 方法](#api-resetreferenceimage)
+  - [12.7 release 方法](#api-release)
+- [FAQ](#faq)
+<!-- OUTLINE END -->
+
+<a id="download"></a>
 ## 1. download
 ```
 cd ~
 git clone -b v1.4.7 https://github.com/ChangerC77/xensesdk.git
 ```
+<a id="hardware"></a>
 ## 2. hardware
 
 <table>
@@ -25,9 +65,11 @@ git clone -b v1.4.7 https://github.com/ChangerC77/xensesdk.git
   </tr>
 </table>
 
+<a id="urdf"></a>
 ## 3. urdf
 you can see `STL` and `stp` file in `models` directory
 
+<a id="conda"></a>
 ## 4. conda
 
 进入 Xense SDK 目录
@@ -41,11 +83,14 @@ conda create -n xenseenv python=3.9.19
 conda activate xenseenv
 ```
 ---
+<a id="gpu-driver"></a>
 ## 5. 根据对应显卡安装显卡驱动
 ---
+<a id="cuda-cudnn"></a>
 ## 6. cuda & cudnn
 SDK 支持 `CUDA Toolkit 11.8` 和 `cuDNN 8.9.2.26`。根据您的环境，选择以下安装方式：
 
+<a id="cuda-cudnn-conda"></a>
 ### 6.1. 通过 Conda 直接安装 (recommand)
 #### 6.1.1 搜索所需版本：
 ```
@@ -116,22 +161,26 @@ done
 
 </details>
 
+<a id="cuda-cudnn-local"></a>
 ### 6.2 从本地 Conda 环境包安装
 ```
 conda install --use-local cudatoolkit-11.8.0-hd77b12b_0.conda
 conda install --use-local cudnn-8.9.2.26-cuda11_0.conda
 ```
 
+<a id="install-sdk"></a>
 ## 7. install Xense SDK Package
 ```bash
 pip install xensesdk-1.4.7-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
 
 ---
+<a id="force"></a>
 ## 8. force 
 
 <img src='img/1.png'>
 
+<a id="config"></a>
 ## 9. config
 
 使用前请先获得对应传感器配置文件，文件和传感器型号一一对应。
@@ -159,6 +208,7 @@ examples:
 - 双传感器脚本默认读取 `xense.sensor1_id` 和 `xense.sensor2_id`，也兼容 `xense.sensor_ids` 列表写法。
 - `xense.freq` 用于控制实时读取、实时显示和保存数据时的循环频率。
 
+<a id="api-docs"></a>
 ## 10. API 文档
 本目录已按单传感器和双传感器拆分：
 
@@ -167,6 +217,7 @@ examples:
 
 这些脚本默认从 `config/config.yaml` 读取传感器 ID；实时读取、实时显示和保存数据的频率由 `xense.freq` 控制。双传感器脚本也支持通过命令行直接传入两个传感器 ID。
 
+<a id="api-docs-single-create"></a>
 ### 10.1 single create_method
 ```bash
 python ~/xensesdk/API/single/01_create_method.py
@@ -186,6 +237,7 @@ In SDK: [Network] Camera 2 disconnected
 
 </details>
 
+<a id="api-docs-single-select"></a>
 ### 10.2 single selectSensorInfo_method
 ```bash
 python ~/xensesdk/API/single/02_selectSensorInfo_Method.py
@@ -216,6 +268,7 @@ In SDK: [Network] Camera 2 disconnected
 
 </details>
 
+<a id="api-docs-single-solver"></a>
 ### 10.3 single createSolver
 ```bash
 python ~/xensesdk/API/single/03_createSolver.py
@@ -246,6 +299,7 @@ Data saved and replayed successfully.
 
 </details>
 
+<a id="api-docs-single-show"></a>
 ### 10.4 single real-time show image
 ```bash
 python ~/xensesdk/API/single/04_show.py
@@ -277,6 +331,7 @@ infer session using GPU
 | --- | --- |
 | <img src='img/8.png' width="100%"> | <img src='img/9.png' width="100%"> |
 
+<a id="api-docs-double"></a>
 ### 10.5 double sensors
 ```bash
 python ~/xensesdk/API/double/05_double_sensors.py
@@ -307,6 +362,7 @@ python ~/xensesdk/API/double/05_double_sensors.py OG000165 OG000204
 
 </details>
 
+<a id="api-docs-double-realtime"></a>
 ### 10.6 double sensors real-time
 ```bash
 python ~/xensesdk/API/double/05_double_sensors_real_time.py
@@ -340,7 +396,9 @@ Frame 2 | loop_time=0.0123s | loop_fps=58.41 Hz
 </details>
 
 ---
+<a id="examples"></a>
 ## 11. Example
+<a id="example-force"></a>
 ### 11.1 example_force.py
 ```
 python ~/xensesdk/Examples/example_force.py
@@ -363,6 +421,7 @@ infer session using GPU
 </details>
 <img src='img/11.png'>
 
+<a id="example-marker-detect"></a>
 ### 11.2 example_marker_detect.py
 ```
 python ~/xensesdk/Examples/example_marker_detect.py
@@ -385,6 +444,7 @@ infer session using GPU
 </details>
 <img src='img/12.png'>
 
+<a id="example-finger-depth"></a>
 ### 11.3 example_finger_depth.py
 ```
 python ~/xensesdk/Examples/example_finger_depth.py
@@ -408,6 +468,7 @@ infer session using GPU
 
 <img src='img/10.png'>
 
+<a id="example-depth"></a>
 ### 11.4 example_depth.py
 ```
 python ~/xensesdk/Examples/example_depth.py
@@ -431,7 +492,9 @@ infer session using GPU
 
 </details>
 
+<a id="api-instruction"></a>
 ## 12. API instruction
+<a id="api-create"></a>
 ### 12.1 `create` 方法
 
 ##### 描述
@@ -473,6 +536,7 @@ sensor =  Sensor.create('OP000064', ip_address="192.168.66.66")
 
 ---
 
+<a id="api-selectsensorinfo"></a>
 ### 12.2 `selectSensorInfo` 方法
 
 ##### 描述
@@ -518,6 +582,7 @@ sensor.release()
 
 ---
 
+<a id="api-startsavesensorinfo"></a>
 ### 12.3 `startSaveSensorInfo` 方法
 
 ##### 描述
@@ -553,6 +618,7 @@ sensor.release()
 
 ---
 
+<a id="api-stopsavesensorinfo"></a>
 ### 12.4 `stopSaveSensorInfo` 方法
 
 ##### 描述
@@ -561,6 +627,7 @@ sensor.release()
 
 ---
 
+<a id="api-getcameraid"></a>
 ### 12.5 `getCameraID` 方法
 
 ##### 描述
@@ -569,6 +636,7 @@ sensor.release()
 
 ---
 
+<a id="api-resetreferenceimage"></a>
 ### 12.6 `resetReferenceImage` 方法
 
 ##### 描述
@@ -577,6 +645,7 @@ sensor.release()
 
 ---
 
+<a id="api-release"></a>
 ### 12.7 `release` 方法
 
 ##### 描述
@@ -585,6 +654,7 @@ sensor.release()
 
 ---
 
+<a id="faq"></a>
 ## 常见问题解答 (FAQ)
 
 **问：** 无法加载 Qt 平台插件 "xcb" 虽然它已被找到，错误信息为 "..."
