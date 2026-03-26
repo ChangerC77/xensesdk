@@ -23,8 +23,7 @@ studio: https://www.xenserobotics.com/about/372
   - [10.2 single selectSensorInfo_method](#api-docs-single-select)
   - [10.3 single createSolver](#api-docs-single-solver)
   - [10.4 single real-time show image](#api-docs-single-show)
-  - [10.5 double sensors](#api-docs-double)
-  - [10.6 double sensors real-time](#api-docs-double-realtime)
+  - [10.5 double sensors test](#api-docs-double)
 - [11. Example](#examples)
   - [11.1 example_force.py](#example-force)
   - [11.2 example_marker_detect.py](#example-marker-detect)
@@ -205,17 +204,17 @@ examples:
 说明：
 
 - 单传感器脚本兼容读取 `xense.sensor_id`，未配置时会回退到 `xense.sensor1_id`。
-- 双传感器脚本默认读取 `xense.sensor1_id` 和 `xense.sensor2_id`，也兼容 `xense.sensor_ids` 列表写法。
-- `xense.freq` 用于控制实时读取、实时显示和保存数据时的循环频率。
+- 当前双传感器示例 `API/double/05_test.py` 直接在代码中写入传感器 ID，不读取 `config/config.yaml`。
+- `xense.freq` 用于控制单传感器实时读取、实时显示和保存数据时的循环频率。
 
 <a id="api-docs"></a>
 ## 10. API 文档
 本目录已按单传感器和双传感器拆分：
 
 - `API/single`：单传感器相关示例
-- `API/double`：双传感器相关示例
+- `API/double`：双传感器相关示例（当前为双传感器图像拼接显示脚本）
 
-这些脚本默认从 `config/config.yaml` 读取传感器 ID；实时读取、实时显示和保存数据的频率由 `xense.freq` 控制。双传感器脚本也支持通过命令行直接传入两个传感器 ID。
+单传感器脚本默认从 `config/config.yaml` 读取传感器 ID；实时读取、实时显示和保存数据的频率由 `xense.freq` 控制。双传感器脚本请直接修改脚本中的传感器 ID。
 
 <a id="api-docs-single-create"></a>
 ### 10.1 single create_method
@@ -332,68 +331,30 @@ infer session using GPU
 | <img src='img/8.png' width="100%"> | <img src='img/9.png' width="100%"> |
 
 <a id="api-docs-double"></a>
-### 10.5 double sensors
+### 10.5 double sensors test
 ```bash
-python ~/xensesdk/API/double/05_double_sensors.py
+python ~/xensesdk/API/double/05_show.py
 ```
-
-也可以直接传入两个传感器 ID：
-
-```bash
-python ~/xensesdk/API/double/05_double_sensors.py OG000165 OG000204
-```
-
 <details>
 <summary>output</summary>
-
-```text
-===== Sensor OG000165 =====
-[OG000165] Rectified image shape: (700, 400, 3)
-[OG000165] Difference image shape: (700, 400, 3)
-[OG000165] Depth image shape: (700, 400)
-...
-
-===== Sensor OG000204 =====
-[OG000204] Rectified image shape: (700, 400, 3)
-[OG000204] Difference image shape: (700, 400, 3)
-[OG000204] Depth image shape: (700, 400)
-...
-```
-
+Found Xense devices: {'OG000708': 16, 'OG000869': 14}
+Read config from OG000869: cam_id_14 success!
+In SDK: [Network] Camera 14 connected
+Init infer engine
+infer session using GPU
+Found Xense devices: {'OG000708': 16, 'OG000869': 14}
+Read config from OG000708: cam_id_16 success!
+In SDK: [Network] Camera 16 connected
+Init infer engine
+infer session using GPU
 </details>
+<img src='img/14.png'>
 
-<a id="api-docs-double-realtime"></a>
-### 10.6 double sensors real-time
-```bash
-python ~/xensesdk/API/double/05_double_sensors_real_time.py
-```
+说明：
 
-也可以直接传入两个传感器 ID，并用 `--fps` 临时覆盖 `config/config.yaml` 里的 `xense.freq`：
-
-```bash
-python ~/xensesdk/API/double/05_double_sensors_real_time.py OG000165 OG000204 --fps 30
-```
-
-<details>
-<summary>output</summary>
-
-```text
-First frame data shapes:
-
-===== Sensor OG000165 =====
-[OG000165] Rectified image shape: (700, 400, 3)
-...
-
-===== Sensor OG000204 =====
-[OG000204] Rectified image shape: (700, 400, 3)
-...
-
-Frame 2 | loop_time=0.0123s | loop_fps=58.41 Hz
-[OG000165] timestamp=1770810092.601942, sensor_fps=59.87 Hz, depth_shape=(700, 400), force_resultant=[...]
-[OG000204] timestamp=1770810092.602115, sensor_fps=60.02 Hz, depth_shape=(700, 400), force_resultant=[...]
-```
-
-</details>
+- 请先在 `API/double/05_show.py` 中将 `sensor_left` 和 `sensor_right` 的传感器 ID 改为你自己的设备 ID。
+- 脚本会读取两个传感器的 `Rectify` 图像并进行横向拼接显示。
+- 在图像窗口按 `q` 退出程序，脚本会自动释放两个传感器连接。
 
 ---
 <a id="examples"></a>
@@ -670,4 +631,3 @@ Could not load the Qt platform plugin "xcb" in "" even though it was found. This
 sudo apt-get update
 sudo apt-get install libxcb-cursor0
 ```
-
