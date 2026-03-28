@@ -186,10 +186,10 @@ pip install xensesdk-1.4.7-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.
 
 根据具体传感器参数来修改`config/config.yaml`文件
 
-```
+```yaml
 xense:
-  sensor1_id: 'OG000165'
-  sensor2_id: 'OG000204'
+  sensor1_id: 'OG000204' # left / 单传感器脚本默认读取该 ID
+  sensor2_id: 'OG000165' # right / 双传感器脚本读取该 ID
   freq: 60
 
 examples:
@@ -203,9 +203,11 @@ examples:
 
 说明：
 
-- 单传感器脚本兼容读取 `xense.sensor_id`，未配置时会回退到 `xense.sensor1_id`。
-- 当前双传感器示例 `API/double/05_test.py` 直接在代码中写入传感器 ID，不读取 `config/config.yaml`。
-- `xense.freq` 用于控制单传感器实时读取、实时显示和保存数据时的循环频率。
+- `API/single` 下的 `01_create_method.py`、`02_selectSensorInfo_Method.py`、`03_createSolver.py`、`04_show.py` 默认读取 `xense.sensor1_id`。
+- `API/double/05_show.py` 默认读取 `xense.sensor1_id` 作为左侧传感器，读取 `xense.sensor2_id` 作为右侧传感器。
+- `xense.freq` 用于控制 `03_createSolver.py` 的保存频率，以及 `04_show.py` 的实时显示频率。
+- 所有上述脚本均支持 `--config` 参数，默认配置路径为 `config/config.yaml`。
+- `config/config_loader.py` 已移除，脚本现在直接读取 YAML 配置文件。
 
 <a id="api-docs"></a>
 ## 10. API 文档
@@ -214,13 +216,20 @@ examples:
 - `API/single`：单传感器相关示例
 - `API/double`：双传感器相关示例（当前为双传感器图像拼接显示脚本）
 
-单传感器脚本默认从 `config/config.yaml` 读取传感器 ID；实时读取、实时显示和保存数据的频率由 `xense.freq` 控制。双传感器脚本请直接修改脚本中的传感器 ID。
+默认情况下，这些脚本都会读取 `config/config.yaml`。如果你需要使用其他配置文件，可以在命令后追加 `--config /path/to/config.yaml`。
 
 <a id="api-docs-single-create"></a>
 ### 10.1 single create_method
 ```bash
 python ~/xensesdk/API/single/01_create_method.py
+# or
+python ~/xensesdk/API/single/01_create_method.py --config config/config.yaml
 ```
+
+说明：
+
+- 脚本会读取 `xense.sensor1_id` 并创建一个 `Sensor` 实例。
+- 示例运行完成后会自动调用 `release()` 释放资源。
 
 <details>
 <summary>output</summary>
@@ -240,7 +249,13 @@ In SDK: [Network] Camera 2 disconnected
 ### 10.2 single selectSensorInfo_method
 ```bash
 python ~/xensesdk/API/single/02_selectSensorInfo_Method.py
+# or
+python ~/xensesdk/API/single/02_selectSensorInfo_Method.py --config config/config.yaml
 ```
+
+说明：
+
+- 脚本会读取 `xense.sensor1_id`，并一次性输出多种传感器数据的 shape。
 
 <details>
 <summary>output</summary>
@@ -271,11 +286,14 @@ In SDK: [Network] Camera 2 disconnected
 ### 10.3 single createSolver
 ```bash
 python ~/xensesdk/API/single/03_createSolver.py
+# or
+python ~/xensesdk/API/single/03_createSolver.py --config config/config.yaml
 ```
 
 说明：
 
-- 图像会保存到 `API/single/test_dir`。
+- 图像和运行时配置会保存到 `API/single/test_dir`，脚本会自动创建该目录。
+- 保存使用的传感器 ID 读取自 `xense.sensor1_id`。
 - 保存频率读取 `config/config.yaml` 中的 `xense.freq`。
 
 <details>
@@ -302,12 +320,15 @@ Data saved and replayed successfully.
 ### 10.4 single real-time show image
 ```bash
 python ~/xensesdk/API/single/04_show.py
+# or
+python ~/xensesdk/API/single/04_show.py --config config/config.yaml
 ```
 
 说明：
 
+- 实时显示使用的传感器 ID 读取自 `xense.sensor1_id`。
 - 运行频率读取 `config/config.yaml` 中的 `xense.freq`。
-- 运行时配置保存在 `API/single/test_dir`。
+- 启动后会先将运行时配置导出到 `API/single/test_dir/runtime_<sensor_id>`，再创建 solver 实时计算深度图。
 
 <details>
 <summary>output</summary>
@@ -334,9 +355,14 @@ infer session using GPU
 ### 10.5 double sensors test
 ```bash
 python ~/xensesdk/API/double/05_show.py
+# or
+python ~/xensesdk/API/double/05_show.py --config config/config.yaml
 ```
+
 <details>
 <summary>output</summary>
+
+```text
 Found Xense devices: {'OG000708': 16, 'OG000869': 14}
 Read config from OG000869: cam_id_14 success!
 In SDK: [Network] Camera 14 connected
@@ -347,13 +373,16 @@ Read config from OG000708: cam_id_16 success!
 In SDK: [Network] Camera 16 connected
 Init infer engine
 infer session using GPU
+```
+
 </details>
 <img src='img/14.png'>
 
 说明：
 
-- 请先在 `API/double/05_show.py` 中将 `sensor_left` 和 `sensor_right` 的传感器 ID 改为你自己的设备 ID。
+- 左侧传感器读取 `xense.sensor1_id`，右侧传感器读取 `xense.sensor2_id`。
 - 脚本会读取两个传感器的 `Rectify` 图像并进行横向拼接显示。
+- 默认窗口标题为 `Double Sensors Rectified Images`。
 - 在图像窗口按 `q` 退出程序，脚本会自动释放两个传感器连接。
 
 ---

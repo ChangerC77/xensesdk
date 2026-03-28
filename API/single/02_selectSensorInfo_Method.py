@@ -1,21 +1,14 @@
-from pathlib import Path
-import sys
-
+import argparse
+import yaml
 from xensesdk import Sensor
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--config', type=str, default='config/config.yaml', help='YAML file path')
+args = parser.parse_args()
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = next(
-    parent for parent in (SCRIPT_DIR, *SCRIPT_DIR.parents)
-    if (parent / "config" / "config_loader.py").exists()
-)
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-from config.config_loader import load_sensor_id
-
-
-sensor_id = load_sensor_id()
+with open(args.config, 'r', encoding='utf-8') as f:
+    config = yaml.safe_load(f)
+    sensor_id = config['xense']['sensor1_id']
 
 # Create sensor instance
 sensor = Sensor.create(sensor_id)

@@ -1,6 +1,6 @@
 xense:
-  sensor1_id: 'OG000165'
-  sensor2_id: 'OG000204'
+  sensor1_id: 'OG000204' # left
+  sensor2_id: 'OG000165' # right 
   freq: 60
 
 examples:

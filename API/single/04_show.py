@@ -1,30 +1,27 @@
 from pathlib import Path
 SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = next(
-    parent for parent in (SCRIPT_DIR, *SCRIPT_DIR.parents)
-    if (parent / "config" / "config_loader.py").exists()
-)
+
 SAVE_DIR = SCRIPT_DIR / "test_dir"  # Storage directory
 SAVE_DIR.mkdir(parents=True, exist_ok=True)
+
+from xensesdk import Sensor
+import argparse
+import yaml
 import cv2
-import sys
 import time
 import numpy as np
 
-from xensesdk import Sensor
+parser = argparse.ArgumentParser()
+parser.add_argument('--config', type=str, default='config/config.yaml', help='YAML file path')
+args = parser.parse_args()
 
-
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-from config.config_loader import load_float, load_sensor_id
-
-sensor_id = load_sensor_id()
-
+with open(args.config, 'r', encoding='utf-8') as f:
+    config = yaml.safe_load(f)
+    sensor_id = config['xense']['sensor1_id']
+    fps = config['xense']['freq']
 
 def get_runtime_dir():
     return SAVE_DIR / f"runtime_{sensor_id}"
-
 
 def create_solver():
     runtime_dir = get_runtime_dir()
@@ -52,9 +49,9 @@ def process_window_events(frame_interval, start_time):
     wait_ms = max(1, int((frame_interval - elapsed) * 1000))
     cv2.waitKeyEx(wait_ms)
 
-def realtime_display():
-    fps = load_float("xense.freq", default=30.0)
-    frame_interval = 1.0 / fps if fps > 0 else 0.0
+def main(config):
+    fps = config['xense']['freq']
+    frame_interval = 1.0 / fps 
     sensor = Sensor.create(sensor_id)
 
     sensor.exportRuntimeConfig(SAVE_DIR)
@@ -89,4 +86,4 @@ def realtime_display():
         print("sensor relase")
 
 if __name__ == '__main__':
-    realtime_display()
+    main(config)

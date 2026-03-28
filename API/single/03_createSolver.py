@@ -1,28 +1,25 @@
+import argparse
 from pathlib import Path
-SCRIPT_DIR = Path(__file__).resolve().parent
-ROOT_DIR = next(
-    parent for parent in (SCRIPT_DIR, *SCRIPT_DIR.parents)
-    if (parent / "config" / "config_loader.py").exists()
-)
-SAVE_DIR = SCRIPT_DIR / "test_dir"  # Storage directory
-SAVE_DIR.mkdir(parents=True, exist_ok=True)
+import yaml
 import cv2
-import sys
 import time
 import numpy as np
 
 from xensesdk import Sensor
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--config', type=str, default='config/config.yaml', help='YAML file path')
+args = parser.parse_args()
 
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
+with open(args.config, 'r', encoding='utf-8') as f:
+    config = yaml.safe_load(f)
+    sensor_id = config['xense']['sensor1_id']
+    fps = config['xense']['freq']
 
-from config.config_loader import load_float, load_sensor_id
-
-sensor_id = load_sensor_id()
+SAVE_DIR = Path(__file__).resolve().parent / "test_dir"  # Storage directory
+SAVE_DIR.mkdir(parents=True, exist_ok=True)
 
 def save_data():
-    fps = load_float("xense.freq", default=30.0)  # Hz
     duration = 3   # seconds
     if fps <= 0:
         raise ValueError("config/config.yaml 中的 xense.freq 必须大于 0")
