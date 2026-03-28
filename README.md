@@ -1,222 +1,548 @@
 # Xense SDK 文档
 
-**如有使用问题，请添加微信 qjrobot9966 来交流**
+SDK开发文档和软件操作手册更新至： https://xensedoc.readthedocs.io/en/latest/
 
-SDK开发文档和软件操作手册更新至： https://xensesdk-cn.readthedocs.io/zh-cn/latest/
+studio: https://www.xenserobotics.com/about/372
 
-## 概述
+<!-- OUTLINE START -->
+## Outline
 
-**Xense SDK** 是一款为触觉-视觉传感器和可视化工具设计的开发工具包，旨在帮助高效且无缝地将其集成到应用程序中。
+- [1. download](#download)
+- [2. hardware](#hardware)
+- [3. urdf](#urdf)
+- [4. conda](#conda)
+- [5. 根据对应显卡安装显卡驱动](#gpu-driver)
+- [6. cuda & cudnn](#cuda-cudnn)
+  - [6.1 通过 Conda 直接安装](#cuda-cudnn-conda)
+  - [6.2 从本地 Conda 环境包安装](#cuda-cudnn-local)
+- [7. install Xense SDK Package](#install-sdk)
+- [8. force](#force)
+- [9. config](#config)
+- [10. API 文档](#api-docs)
+  - [10.1 single create_method](#api-docs-single-create)
+  - [10.2 single selectSensorInfo_method](#api-docs-single-select)
+  - [10.3 single createSolver](#api-docs-single-solver)
+  - [10.4 single real-time show image](#api-docs-single-show)
+  - [10.5 double sensors test](#api-docs-double)
+- [11. Example](#examples)
+  - [11.1 example_force.py](#example-force)
+  - [11.2 example_marker_detect.py](#example-marker-detect)
+  - [11.3 example_finger_depth.py](#example-finger-depth)
+  - [11.4 example_depth.py](#example-depth)
+- [12. API instruction](#api-instruction)
+  - [12.1 create 方法](#api-create)
+  - [12.2 selectSensorInfo 方法](#api-selectsensorinfo)
+  - [12.3 startSaveSensorInfo 方法](#api-startsavesensorinfo)
+  - [12.4 stopSaveSensorInfo 方法](#api-stopsavesensorinfo)
+  - [12.5 getCameraID 方法](#api-getcameraid)
+  - [12.6 resetReferenceImage 方法](#api-resetreferenceimage)
+  - [12.7 release 方法](#api-release)
+- [FAQ](#faq)
+<!-- OUTLINE END -->
 
----
+<a id="download"></a>
+## 1. download
+```
+cd ~
+git clone -b v1.4.7 https://github.com/ChangerC77/xensesdk.git
+```
+<a id="hardware"></a>
+## 2. hardware
 
-## 安装指南
+<table>
+  <tr>
+    <td><img src='img/2.png' width="100%"></td>
+    <td><img src='img/3.png' width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src='img/4.png' width="100%"></td>
+    <td><img src='img/5.png' width="100%"></td>
+  </tr>
+  <tr>
+    <td><img src='img/6.png' width="100%"></td>
+    <td><img src='img/7.png' width="100%"></td>
+  </tr>
+</table>
 
-### 步骤 1: 准备 Python 开发环境
+<a id="urdf"></a>
+## 3. urdf
+you can see `STL` and `stp` file in `models` directory
 
-推荐使用 **Anaconda**，并使用 Python 版本 **3.9** 或 **3.10**。
+<a id="conda"></a>
+## 4. conda
+
+进入 Xense SDK 目录
 
 ```bash
 # 进入 Xense SDK 目录
 cd xensesdk
 
 # 创建并激活虚拟环境
-conda create -n xenseenv python=3.9
-# or conda create -n xenseenv python=3.10
+conda create -n xenseenv python=3.9.19
 conda activate xenseenv
 ```
-
 ---
-
-### 步骤 2: 安装 CUDA 工具包和 cuDNN
-
-SDK 需要 **onnxruntime_gpu**，以及配套的**cudnn、 cudatoolkit**。根据您的环境，选择以下安装方式：
-
-#### 选项 1: onnxruntime_gpu>1.18.0
-
-1. 安装所需版本：
-   ```bash
-   # 这个例子使用cuda12.9
-   conda install nvidia/label/cuda-12.9.0::cuda-toolkit nvidia::cudnn
-   ```
-2. 将cuda的路径加入环境变量 ‘LD_LIBRARY_PATH‘：
-   ```bash
-   # linux里可以运行如下命令
-   export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib64 #（临时）
-   mkdir -p $CONDA_PREFIX/etc/conda/activate.d && echo 'export LD_LIBRARY_PATH=$CONDA_PREFIX/lib:$CONDA_PREFIX/lib64:$LD_LIBRARY_PATH' > $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh #（永久）
-   ```
-
-#### 选项 2: onnxruntime_gpu==1.18.0 (50系列显卡不可用)
-
-1. 搜索所需版本：
-   ```bash
-   conda search cudnn
-   conda search cudatoolkit
-   ```
-2. 安装所需版本：
-   ```bash
-   conda install cudnn==8.9.2.26 cudatoolkit==11.8.0
-   ```
-
+<a id="gpu-driver"></a>
+## 5. 根据对应显卡安装显卡驱动
 ---
+<a id="cuda-cudnn"></a>
+## 6. cuda & cudnn
+SDK 支持 `CUDA Toolkit 11.8` 和 `cuDNN 8.9.2.26`。根据您的环境，选择以下安装方式：
 
-### 步骤 3: 安装 Xense SDK 包
+<a id="cuda-cudnn-conda"></a>
+### 6.1. 通过 Conda 直接安装 (recommand)
+#### 6.1.1 搜索所需版本：
+```
+conda search cudnn
+conda search cudatoolkit
+```
+#### 6.1.2 安装所需版本：
+```
+conda install cudnn==8.9.2.26 cudatoolkit==11.8.0
+```
+耗时比较长
+<details>
+<summary>output</summary>
 
-将 SDK 包安装到您的环境中：
+```
+Channels:
+ - defaults
+Platform: linux-64
+Collecting package metadata (repodata.json): done
+Solving environment: done
+
+
+==> WARNING: A newer version of conda exists. <==
+    current version: 25.3.1
+    latest version: 25.5.0
+
+Please update conda by running
+
+    $ conda update -n base -c defaults conda
+
+
+
+## Package Plan ##
+
+  environment location: /home/tars/system/miniconda3/envs/xenseenv
+
+  added / updated specs:
+    - cudatoolkit==11.8.0
+    - cudnn==8.9.2.26
+
+
+The following packages will be downloaded:
+
+    package                    |            build
+    ---------------------------|-----------------
+    cudatoolkit-11.8.0         |       h6a678d5_0       630.7 MB
+    cudnn-8.9.2.26             |         cuda11_0       469.4 MB
+    ------------------------------------------------------------
+                                           Total:        1.07 GB
+
+The following NEW packages will be INSTALLED:
+
+  cudatoolkit        pkgs/main/linux-64::cudatoolkit-11.8.0-h6a678d5_0 
+  cudnn              pkgs/main/linux-64::cudnn-8.9.2.26-cuda11_0 
+
+
+Proceed ([y]/n)? y
+
+
+Downloading and Extracting Packages:
+                                                                                                     
+Preparing transaction: done                                                                          
+Verifying transaction: done
+Executing transaction: \ By downloading and using the CUDA Toolkit conda packages, you accept the terms and conditions of the CUDA End User License Agreement (EULA): https://docs.nvidia.com/cuda/eula/index.html
+
+done
+```
+
+</details>
+
+<a id="cuda-cudnn-local"></a>
+### 6.2 从本地 Conda 环境包安装
+```
+conda install --use-local cudatoolkit-11.8.0-hd77b12b_0.conda
+conda install --use-local cudnn-8.9.2.26-cuda11_0.conda
+```
+
+<a id="install-sdk"></a>
+## 7. install Xense SDK Package
 ```bash
-# 从 PyPI 安装
-pip install xensesdk -i https://repo.huaweicloud.com/repository/pypi/simple/
+pip install xensesdk-1.4.7-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
 ```
-或:
+
+---
+<a id="force"></a>
+## 8. force 
+
+<img src='img/1.png'>
+
+<a id="config"></a>
+## 9. config
+
+使用前请先获得对应传感器配置文件，文件和传感器型号一一对应。
+
+根据具体传感器参数来修改`config/config.yaml`文件
+
+```yaml
+xense:
+  sensor1_id: 'OG000204' # left / 单传感器脚本默认读取该 ID
+  sensor2_id: 'OG000165' # right / 双传感器脚本读取该 ID
+  freq: 60
+
+examples:
+  data_processing_video_path: ''
+  finger_config_path: ''
+  record_data_dir: 'Examples/output'
+  record_data_duration_seconds: 5
+  remote_ip: '192.168.1.120'
+
+```
+
+说明：
+
+- `API/single` 下的 `01_create_method.py`、`02_selectSensorInfo_Method.py`、`03_createSolver.py`、`04_show.py` 默认读取 `xense.sensor1_id`。
+- `API/double/05_show.py` 默认读取 `xense.sensor1_id` 作为左侧传感器，读取 `xense.sensor2_id` 作为右侧传感器。
+- `Examples` 目录下示例脚本也默认读取 `config/config.yaml`，并支持通过 `--config` 指定其他 YAML 配置文件。
+- `xense.freq` 用于控制 `03_createSolver.py` 的保存频率，以及 `04_show.py` 的实时显示频率。
+- 所有上述脚本均支持 `--config` 参数，默认配置路径为仓库根目录下的 `config/config.yaml`。
+- `config/config_loader.py` 已移除，脚本现在直接读取 YAML 配置文件。
+
+<a id="api-docs"></a>
+## 10. API 文档
+本目录已按单传感器和双传感器拆分：
+
+- `API/single`：单传感器相关示例
+- `API/double`：双传感器相关示例（当前为双传感器图像拼接显示脚本）
+
+默认情况下，这些脚本都会读取 `config/config.yaml`。如果你需要使用其他配置文件，可以在命令后追加 `--config /path/to/config.yaml`。
+
+<a id="api-docs-single-create"></a>
+### 10.1 single create_method
 ```bash
-# 从本地目录安装
-pip install xensesdk-0.1.0-cp39-cp39-win_amd64.whl # (对于定制软件包)
+python ~/xensesdk/API/single/01_create_method.py
+# or
+python ~/xensesdk/API/single/01_create_method.py --config config/config.yaml
 ```
+
+说明：
+
+- 脚本会读取 `xense.sensor1_id` 并创建一个 `Sensor` 实例。
+- 示例运行完成后会自动调用 `release()` 释放资源。
+
+<details>
+<summary>output</summary>
+
+```text
+Found Xense devices: {'OG000165': 2}
+Read config from OG000165: cam_id_2 success!
+In SDK: [Network] Camera 2 connected
+Init infer engine
+infer session using GPU
+In SDK: [Network] Camera 2 disconnected
+```
+
+</details>
+
+<a id="api-docs-single-select"></a>
+### 10.2 single selectSensorInfo_method
+```bash
+python ~/xensesdk/API/single/02_selectSensorInfo_Method.py
+# or
+python ~/xensesdk/API/single/02_selectSensorInfo_Method.py --config config/config.yaml
+```
+
+说明：
+
+- 脚本会读取 `xense.sensor1_id`，并一次性输出多种传感器数据的 shape。
+
+<details>
+<summary>output</summary>
+
+```text
+Found Xense devices: {'OG000165': 2}
+Read config from OG000165: cam_id_2 success!
+In SDK: [Network] Camera 2 connected
+Init infer engine
+infer session using GPU
+Rectified image shape: (700, 400, 3)
+Difference image shape: (700, 400, 3)
+Depth image shape: (700, 400)
+3D force distribution shape: (35, 20, 3)
+Normal force component: (35, 20, 3)
+6-dimensional resultant force: (6,)
+Tangential displacement shape: (26, 14, 2)
+Current frame 3D mesh shape: (35, 20, 3)
+Initial 3D mesh shape: (35, 20, 3)
+Mesh deformation vector: (35, 20, 3)
+Sensor timestamp: 1773420554.5228953
+In SDK: [Network] Camera 2 disconnected
+```
+
+</details>
+
+<a id="api-docs-single-solver"></a>
+### 10.3 single createSolver
+```bash
+python ~/xensesdk/API/single/03_createSolver.py
+# or
+python ~/xensesdk/API/single/03_createSolver.py --config config/config.yaml
+```
+
+说明：
+
+- 图像和运行时配置会保存到 `API/single/test_dir`，脚本会自动创建该目录。
+- 保存使用的传感器 ID 读取自 `xense.sensor1_id`。
+- 保存频率读取 `config/config.yaml` 中的 `xense.freq`。
+
+<details>
+<summary>output</summary>
+
+```text
+Found Xense devices: {'OG000165': 2}
+Read config from OG000165: cam_id_2 success!
+In SDK: [Network] Camera 2 connected
+Init infer engine
+infer session using GPU
+Saved /home/leishen/xensesdk/API/single/test_dir/OG000165_000.png
+...
+模型已并保存到: /home/leishen/xensesdk/API/single/test_dir/runtime_OG000165
+In SDK: [Network] Camera 2 disconnected
+Init infer engine
+infer session using GPU
+Data saved and replayed successfully.
+```
+
+</details>
+
+<a id="api-docs-single-show"></a>
+### 10.4 single real-time show image
+```bash
+python ~/xensesdk/API/single/04_show.py
+# or
+python ~/xensesdk/API/single/04_show.py --config config/config.yaml
+```
+
+说明：
+
+- 实时显示使用的传感器 ID 读取自 `xense.sensor1_id`。
+- 运行频率读取 `config/config.yaml` 中的 `xense.freq`。
+- 启动后会先将运行时配置导出到 `API/single/test_dir/runtime_<sensor_id>`，再创建 solver 实时计算深度图。
+
+<details>
+<summary>output</summary>
+
+```text
+Found Xense devices: {'OG000165': 1}
+Read config from OG000165: cam_id_1 success!
+In SDK: [Network] Camera 1 connected
+Init infer engine
+infer session using GPU
+模型已并保存到: /home/leishen/cxy/xensesdk/API/single/test_dir/runtime_OG000165
+Init infer engine
+infer session using GPU
+在终端按 Ctrl+C 退出实时显示
+```
+
+</details>
+
+| Rectify | Depth |
+| --- | --- |
+| <img src='img/8.png' width="100%"> | <img src='img/9.png' width="100%"> |
+
+<a id="api-docs-double"></a>
+### 10.5 double sensors test
+```bash
+python ~/xensesdk/API/double/05_show.py
+# or
+python ~/xensesdk/API/double/05_show.py --config config/config.yaml
+```
+
+<details>
+<summary>output</summary>
+
+```text
+Found Xense devices: {'OG000708': 16, 'OG000869': 14}
+Read config from OG000869: cam_id_14 success!
+In SDK: [Network] Camera 14 connected
+Init infer engine
+infer session using GPU
+Found Xense devices: {'OG000708': 16, 'OG000869': 14}
+Read config from OG000708: cam_id_16 success!
+In SDK: [Network] Camera 16 connected
+Init infer engine
+infer session using GPU
+```
+
+</details>
+<img src='img/14.png'>
+
+说明：
+
+- 左侧传感器读取 `xense.sensor1_id`，右侧传感器读取 `xense.sensor2_id`。
+- 脚本会读取两个传感器的 `Rectify` 图像并进行横向拼接显示。
+- 默认窗口标题为 `Double Sensors Rectified Images`。
+- 在图像窗口按 `q` 退出程序，脚本会自动释放两个传感器连接。
 
 ---
-
-### 步骤 4: ubuntu环境注意事项
-
-在ubuntu环境下初次安装 `>=1.6.7` 的xensesdk时，先执行下方脚本才能正常使用。
+<a id="examples"></a>
+## 11. Example
+<a id="example-force"></a>
+### 11.1 example_force.py
 ```
-#!/bin/bash
-
-# 1) 创建组（若已存在不会报错）
-sudo groupadd -f xense
-
-# 如果规则文件已存在，先删除（可选）
-if [ -f '/etc/udev/rules.d/99-xense.rules' ]; then
-    echo "Udev rule already exists, removing old one..."
-    sudo rm /etc/udev/rules.d/99-xense.rules
-fi
-
-# 2) 写 udev 规则（匹配 vendor id 3938，适用于所有当前和将来 Xense 设备）
-sudo tee /etc/udev/rules.d/99-xense.rules > /dev/null <<EOF
-# 99-xense.rules - allow users in 'xense' group to access Xense Robotics USB devices
-SUBSYSTEM=="usb", ENV{DEVTYPE}=="usb_device", ATTR{idVendor}=="3938", MODE="0660", GROUP="${USER}"
-EOF
-
-# 3) 重新加载 udev 规则并触发（使规则生效）
-sudo udevadm control --reload-rules
-sudo udevadm trigger
-
-
-echo "Xense udev rule installed. Please reboot"
+python ~/xensesdk/Examples/example_force.py
 ```
-执行完上述操作后重启电脑
-
-## 示例程序
-
-### 示例源代码
-
-可以在以下目录中查找示例源代码：
+<details>
+<summary>output</summary>
 
 ```
-site-packages/xensesdk/examples/*
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
 ```
 
-一个简单的例程如下:
+</details>
+<img src='img/11.png'>
 
-```python
-from xensesdk import Sensor
-from time import sleep
+<a id="example-marker-detect"></a>
+### 11.2 example_marker_detect.py
+```
+python ~/xensesdk/Examples/example_marker_detect.py
+```
+<details>
+<summary>output</summary>
 
-def main():
-    # 1. 创建传感器
-
-    sensor = Sensor.create('OP000064')
-
-    # 2. 读取传感器数据
-    #   sensor.selectSensorInfo 可以通过传入 `Sensor.OutputType` 枚举量获取相应的传感器数据, 顺序或者数量无限制
-    #   可选的输出类型参考API说明
-    while True:
-        rectify_img, depth= sensor.selectSensorInfo(Sensor.OutputType.Rectify, Sensor.OutputType.Depth)
-
-        # 数据处理
-        # ...
-        sleep(0.02)
-
-if __name__ == '__main__':
-    main()
+```
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
 ```
 
----
+</details>
+<img src='img/12.png'>
 
-# API 文档
+<a id="example-finger-depth"></a>
+### 11.3 example_finger_depth.py
+```
+python ~/xensesdk/Examples/example_finger_depth.py
+```
+<details>
+<summary>output</summary>
 
-本文件提供了用于处理传感器图像的各类方法，包含深度图生成、差异图计算、标记检测以及传感器数据的综合聚合。
+```
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
+```
 
----
+</details>
 
-## 1. `create` 方法
+<img src='img/10.png'>
 
-### 描述
+<a id="example-depth"></a>
+### 11.4 example_depth.py
+```
+python ~/xensesdk/Examples/example_depth.py
+```
+<img src='img/13.png'>
+
+<details>
+<summary>output</summary>
+
+```
+Found Xense devices: {'OG000165': 0}
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+new flash read fail, fallback.
+Read config from OG000165: cam_id_0 success!
+In SDK: [Network] Camera 0 connected
+Init infer engine
+infer session using GPU
+```
+
+</details>
+
+<a id="api-instruction"></a>
+## 12. API instruction
+<a id="api-create"></a>
+### 12.1 `create` 方法
+
+##### 描述
 
 创建一个传感器实例，在结束时请调用`release`。
 
-### 输入参数
+##### 输入参数
 
 * **cam\_id** (`int | str`, 可选): 传感器 ID、序列号或视频路径。默认为 0。
 * **use\_gpu** (`bool`, 可选): 是否使用 GPU 推理，默认为 True。
 * **config\_path** (`str | Path`, 可选): 配置文件路径或目录。如果是目录，需包含与传感器序列号同名的标定文件。
 * **api** (`Enum`, 可选): 相机 API 类型（如 OpenCV 后端），用于指定相机访问方式。
 * **check\_serial** (`bool`, 可选): 是否检查传感器序列号，默认 True。
-* **rectify\_size** (`tuple[int, int]`, 可选): 校正图像尺寸（宽, 高）。
-* **mac\_address** (`str`, 可选): 远程连接使用的相机 MAC 地址。
+* **rectify\_size** (`tuple[int, int]`, 可选): 校正图像尺寸。
+* **ip\_address** (`str`, 可选): 远程连接使用的相机 IP。
 * **video\_path** (`str`, 可选): 离线模拟的视频路径。
 
-### 返回
-
-* 传感器实例，用于后续数据采集和处理。
-
-### 返回类型
+##### 返回
 
 * `Sensor` 对象
 
-### 备注
-
-* 使用完毕后务必调用 `release()` 释放系统资源。
-
-
-### 示例
+##### 示例
 
 ```python
 
-# Example 1：  使用传感器序列号（SN）创建实例
+# Example 1：  用SN码开启
 from xensesdk import Sensor
 sensor = Sensor.create('OP000064') 
 
-# Example 2：  使用相机编号（如 0、1）创建实例
+# Example 2：  用相机编号开启
 sensor = Sensor.create(0) 
 
-# Example 3： 通过 video_path 加载本地数据（cam_id 设为 None）
+# Example 3： 打开储存的数据
 sensor = Sensor.create(None, video_path=r"data.h5")
 
-# Example 4： 指定 IP 地址连接远程传感器
+# Example 4： 打开算力板上的传感器
 sensor =  Sensor.create('OP000064', ip_address="192.168.66.66")
 ```
-#### tips
-
-示例4中的 mac_address 参数兼容设备 IP 地址，如何获取设备 MAC 可参考 EzROS。
-
 
 ---
 
-## 2. `selectSensorInfo` 方法
+<a id="api-selectsensorinfo"></a>
+### 12.2 `selectSensorInfo` 方法
 
-### 描述
+##### 描述
 
-获取指定类型的传感器数据，返回数量和顺序与输入参数一致。
+获取指定类型的传感器数据。
 
-### 输入参数
+##### 输入参数
 
-* **args**: 任意数量的 `Sensor.OutputType` 枚举，用于指定需要获取的数据类型。支持的枚举值及对应数据如下：
+* **args**: 任意数量的 `Sensor.OutputType` 枚举，用于指定需要获取的数据类型：
 
-    * Rectify: Optional[np.ndarray]          # 校正图像, shape=(700, 400, 3), BGR格式
-    * Difference: Optional[np.ndarray]       # 差分图像, shape=(700, 400, 3), BGR格式
+    * Rectify: Optional[np.ndarray]          # 校正图像, shape=(700, 400, 3), RGB
+    * Difference: Optional[np.ndarray]       # 差分图像, shape=(700, 400, 3), RGB
     * Depth: Optional[np.ndarray]            # 深度图像, shape=(700, 400), 单位mm
 
-    * Marker2D: Optional[np.ndarray]         # 切向位移, shape=(26, 14, 2)
+    * Marker2D: Optional[np.ndarray]         # 切向位移, shape=(35, 20, 2)
     * Force: Optional[np.ndarray]            # 三维力分布, shape=(35, 20, 3)
     * ForceNorm: Optional[np.ndarray]        # 法向力分量, shape=(35, 20, 3)
     * ForceResultant: Optional[np.ndarray]   # 六维合力, shape=(6,)
@@ -225,17 +551,11 @@ sensor =  Sensor.create('OP000064', ip_address="192.168.66.66")
     * Mesh3DInit: Optional[np.ndarray]       # 初始3D网格, shape=(35, 20, 3)
     * Mesh3DFlow: Optional[np.ndarray]       # 网格形变向量, shape=(35, 20, 3)
 
-    * TimeStamp: Optional[float]        # 传感器时间戳，单位s
-
-### 返回
+##### 返回
 
 * 所请求的传感器数据（返回数量和顺序与参数一致）
 
-### 备注
-
-* 如果需要同时获取多种类型的数据，请按照例程中的形式用同一次函数调用获取，这样可以保证所有数据来自于同一帧，并且计算速度是最优化的
-
-### 示例
+##### 示例
 
 ```python
 from xensesdk import Sensor
@@ -248,255 +568,84 @@ rectify, marker3d, marker3dInit, marker3dFlow, depth = sensor.selectSensorInfo(
     Sensor.OutputType.Depth
 )
 ...
-# 释放资源
 sensor.release()
 ```
 
 ---
 
-## 3. `calibrateSensor` 方法
+<a id="api-startsavesensorinfo"></a>
+### 12.3 `startSaveSensorInfo` 方法
 
-### 描述
+##### 描述
 
-重新校准传感器，(需在无物理接触时调用)。
+开始保存指定类型的传感器数据，在结束时务必搭配`stopSaveSensorInfo`使用。
 
----
+##### 输入参数
 
-## 4. `scanSerialNumber` 方法
+* **path** (`str`): 数据保存的文件夹路径。
+* **data\_to\_save** (`List[Sensor.OutputType]`, 可选): 需要保存的数据类型列表。为 `None` 则保存所有类型。
 
-### 描述
-
-扫描并返回当前设备上所有已连接的传感器信息。
-
-该方法会检测系统中已连接的传感器设备，返回其序列号与对应的相机 ID 映射关系，方便后续通过序列号创建传感器实例。
-
-### 返回
-
-* 包含所有已连接传感器的字典，键为传感器序列号( serial_number )，值为对应的相机 ID( camera_id )
-* 返回类型：dict
-
----
-
-
-## 5. `getCameraID` 方法
-
-### 描述
-
-获取当前传感器的相机编号。
-* 返回:当前传感器的相机编号
-
----
-
-## 6. `createSolver` 方法
-
-### 描述
-
-工厂方法（类方法），用于从给定的 runtime 配置路径创建一个 SensorSolver 实例。
-
-### 输入参数
-
-* **runtime\_path** (`Union[str, Path]`): 指向 runtime 配置文件的路径。
-
-
-### 返回
-
-* 成功时返回 SensorSolver 实例，失败时返回 False。
-* 类型：SensorSolver | bool
-* 抛出：
-  * AssertionError -- 解密后的数据格式不正确或缺少必要的 "ConfigManager" 键时触发。
-  * Exception -- 读取文件、解密过程中发生错误时触发（具体错误信息会被捕获并打印）。
-
-### 示例
-
-```python
-from pathlib import Path
-SCRIPT_DIR = Path(__file__).resolve().parent
-SAVE_DIR = Path(SCRIPT_DIR / "test_dir")  # 存放目录
-SAVE_DIR.mkdir(parents=True, exist_ok=True)
-import cv2
-import time
-import numpy as np
-
-from xensesdk import Sensor
-
-sensor_id = 'OG000232'
-
-def save_data():
-    fps = 30
-    duration = 3   # 秒
-    frame_interval = 1.0 / fps
-    total_frames = fps * duration
-
-    sensor_0 = Sensor.create(sensor_id)
-    for i in range(total_frames):
-        start_time = time.time()
-
-        # 采集一帧
-        rec = sensor_0.selectSensorInfo(Sensor.OutputType.Rectify)
-
-        # 生成文件名
-        filename = SAVE_DIR / f"{sensor_id}_{i:03d}.png"
-
-        # 保存图片
-        cv2.imwrite(str(filename), rec)
-        print(f"Saved {filename}")
-
-        # 控制帧率（30Hz）
-        elapsed = time.time() - start_time
-        sleep_time = frame_interval - elapsed
-        if sleep_time > 0:
-            time.sleep(sleep_time)
-
-    # 导出配置
-    sensor_0.exportRuntimeConfig(SAVE_DIR)
-
-    sensor_0.release()
-
-def replay_data():
-    sensor_solver = Sensor.createSolver(SAVE_DIR / f"runtime_{sensor_id}")
-    for png_file in sorted(SAVE_DIR.glob("*.png")):
-        if not png_file.name.endswith("_depth.png"):
-            img = cv2.imread(str(png_file), cv2.IMREAD_UNCHANGED)
-            depth, force, diff = sensor_solver.selectSensorInfo(
-                Sensor.OutputType.Depth,
-                Sensor.OutputType.Force,
-                Sensor.OutputType.Difference,
-                rectify_image=img
-            )
-            depth_vis = np.clip(depth*200, 0, 255)
-            cv2.imwrite(SAVE_DIR / f"{png_file.stem}_depth.png", depth_vis)
-
-    sensor_solver.release()
-
-if __name__ == '__main__':
-    save_data()
-    replay_data()
-    print("Data saved and replayed successfully.")
-```
-
----
-
-## 7. `exportRuntimeConfig` 方法
-
-### 描述
-
-将当前传感器的运行时配置导出到指定目录。
-
-### 输入参数
-
-* **save\_dir** (`Union[str, Path]`，可选): 配置文件保存目录，默认为当前目录。
-* **binary** (`bool`，可选): 是否返回二进制加密数据而非保存到文件，默认为 False。
-
-
-### 返回
+##### 返回
 
 * 无
-* 抛出：RuntimeError -- 远程连接模式下导出配置失败时抛出。
 
-### Note
-* 保存的文件名格式为 "runtime_<序列号>"。
-
-### 示例
+##### 示例
 
 ```python
-from pathlib import Path
-SCRIPT_DIR = Path(__file__).resolve().parent
-SAVE_DIR = Path(SCRIPT_DIR / "test_dir")  # 存放目录
-SAVE_DIR.mkdir(parents=True, exist_ok=True)
-import cv2
-import time
-import numpy as np
-
 from xensesdk import Sensor
-
-sensor_id = 'OG000232'
-
-def save_data():
-    fps = 30
-    duration = 3   # 秒
-    frame_interval = 1.0 / fps
-    total_frames = fps * duration
-
-    sensor_0 = Sensor.create(sensor_id)
-    for i in range(total_frames):
-        start_time = time.time()
-
-        # 采集一帧
-        rec = sensor_0.selectSensorInfo(Sensor.OutputType.Rectify)
-
-        # 生成文件名
-        filename = SAVE_DIR / f"{sensor_id}_{i:03d}.png"
-
-        # 保存图片
-        cv2.imwrite(str(filename), rec)
-        print(f"Saved {filename}")
-
-        # 控制帧率（30Hz）
-        elapsed = time.time() - start_time
-        sleep_time = frame_interval - elapsed
-        if sleep_time > 0:
-            time.sleep(sleep_time)
-
-    # 导出配置
-    sensor_0.exportRuntimeConfig(SAVE_DIR)
-
-    sensor_0.release()
-
-def replay_data():
-    sensor_solver = Sensor.createSolver(SAVE_DIR / f"runtime_{sensor_id}")
-    for png_file in sorted(SAVE_DIR.glob("*.png")):
-        img = cv2.imread(str(png_file), cv2.IMREAD_UNCHANGED)
-        depth, force, diff = sensor_solver.selectSensorInfo(
-            Sensor.OutputType.Depth,
-            Sensor.OutputType.Force,
-            Sensor.OutputType.Difference,
-            rectify_image=img
-        )
-        depth_norm = cv2.normalize(depth, None, 0, 255, cv2.NORM_MINMAX)
-        depth_vis = np.uint8(depth_norm)
-        cv2.imwrite(SAVE_DIR / f"{png_file.stem}_depth.png", depth_vis)
-
-    sensor_solver.release()
-
-if __name__ == '__main__':
-    save_data()
-    replay_data()
-    print("Data saved and replayed successfully.")
+sensor = Sensor.create('OP000064') 
+data_to_save = [
+    Sensor.OutputType.Rectify, 
+    Sensor.OutputType.Difference,
+    Sensor.OutputType.Depth,
+    Sensor.OutputType.Marker2D
+]
+sensor.startSaveSensorInfo('/path/to/save', data_to_save)
+...
+sensor.stopSaveSensorInfo()
+...
+sensor.release()
 ```
 
 ---
 
-## 8. `call_service` 方法
+<a id="api-stopsavesensorinfo"></a>
+### 12.4 `stopSaveSensorInfo` 方法
 
-### 描述
+##### 描述
 
-调用算力板上的服务。
-
-### 输入参数
-
-* **master\_ip** (`str`): 算力板 IP 地址，例如: 192.168.99.2。
-* **service\_name** (`str`): 服务名称。
-* **action\_name** (`str`): 服务支持的 action 名称。
-* **args** : 传递给服务的可变参数。
-* **kwargs** : 传递给服务的关键字参数。
-
-
-### 返回
-
-* 字典，结构为: {"success": True, "ret": ret}，其中： success: 布尔值，表示调用是否成功 ret: 服务返回的具体结果数据
+停止数据保存。
 
 ---
 
-## 9. `release` 方法
+<a id="api-getcameraid"></a>
+### 12.5 `getCameraID` 方法
 
-### 描述
+##### 描述
+
+获取当前传感器的相机编号。
+
+---
+
+<a id="api-resetreferenceimage"></a>
+### 12.6 `resetReferenceImage` 方法
+
+##### 描述
+
+重置数据处理流程。
+
+---
+
+<a id="api-release"></a>
+### 12.7 `release` 方法
+
+##### 描述
 
 释放资源，关闭传感器。
 
-* 返回：None
-
 ---
 
+<a id="faq"></a>
 ## 常见问题解答 (FAQ)
 
 **问：** 无法加载 Qt 平台插件 "xcb" 虽然它已被找到，错误信息为 "..."
@@ -508,8 +657,7 @@ Could not load the Qt platform plugin "xcb" in "" even though it was found. This
 
 **答：** 终端内执行：
 
-```shell
+```shelll
 sudo apt-get update
 sudo apt-get install libxcb-cursor0
 ```
-

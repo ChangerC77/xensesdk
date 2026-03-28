@@ -1,36 +1,37 @@
-import sys
-from xensesdk import ExampleView
+import argparse
+from pathlib import Path
+import time
+
+import yaml
 from xensesdk import Sensor
 
-def main():
-    sensor  = Sensor.create("OG000102")
-    sensor.exportRuntimeConfig("./")
-    sensor_solver = sensor.createSolver("./runtime_OG000102")
-    View = ExampleView(sensor_solver)
-    View2d = View.create2d(Sensor.OutputType.Difference, Sensor.OutputType.Depth, Sensor.OutputType.Marker2D)
-    def callback():
-        force, res_force, mesh_init, src, diff, depth = sensor_solver.selectSensorInfo(
-            Sensor.OutputType.Force, 
-            Sensor.OutputType.ForceResultant,
-            Sensor.OutputType.Mesh3DInit,
-            Sensor.OutputType.Rectify, 
-            Sensor.OutputType.Difference, 
-            Sensor.OutputType.Depth,
-            rectify_image = "OG000102.png"
-        )
+ROOT_DIR = Path(__file__).resolve().parents[1]
+DEFAULT_CONFIG_PATH = ROOT_DIR / "config" / "config.yaml"
 
 
-        marker_img = sensor_0.drawMarkerMove(src)   
-        View2d.setData(Sensor.OutputType.Marker2D, marker_img)
-        View2d.setData(Sensor.OutputType.Difference, diff)
-        View2d.setData(Sensor.OutputType.Depth, depth)
-        View.setForceFlow(force, res_force, mesh_init)
-        View.setDepth(depth)
-    View.setCallback(callback)
+def load_config():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", type=str, default=str(DEFAULT_CONFIG_PATH), help="YAML file path")
+    args = parser.parse_args()
 
-    View.show()
-    sensor_solver.release()
-    sys.exit()
+    with open(args.config, "r", encoding="utf-8") as file:
+        config = yaml.safe_load(file) or {}
+
+    sensor_id = config["xense"]["sensor1_id"]
+    save_dir = Path(config["examples"]["record_data_dir"])
+    if not save_dir.is_absolute():
+        save_dir = ROOT_DIR / save_dir
+    duration = float(config["examples"]["record_data_duration_seconds"])
+    return sensor_id, save_dir, duration
+
 
 if __name__ == '__main__':
-    main()
+    sensor_id, save_dir, duration = load_config()
+    sensor = Sensor.create(sensor_id)
+
+    sensor.startSaveSensorInfo(str(save_dir), [Sensor.OutputType.Difference, Sensor.OutputType.Rectify])
+    time.sleep(duration)
+    sensor.stopSaveSensorInfo()
+    print("save ok")
+    
+    sensor.release()
