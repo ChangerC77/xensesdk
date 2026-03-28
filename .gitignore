@@ -1,1 +1,5 @@
 API/test_dir/
+Examples/__pycache__/
+API/double/__pycache__/
+API/single/__pycache__/
+config/__pycache__/
